@@ -127,16 +127,16 @@ type TraefikConfig struct {
 	CertificatesResolvers CertificatesResolversStruct `yaml:"certificatesResolvers,omitempty"`
 }
 
-func createTraefikFile(rootDomain string, useCloudflare bool, cloudflareEmail string, useTraefikHub bool) []byte {
+func createTraefikFile() {
 	entryPointsHttps := EntryPointHttpsStruct{
 		Address: ":443",
 		Http: HttpsHttpStruct{
 			Tls: TlsStruct{
 				Domains: []HttpTlsDomainsStruct{
 					{
-						Main: "traefik." + rootDomain,
+						Main: "traefik." + configRootDomain,
 						Sans: []string{
-							"*." + rootDomain,
+							"*." + configRootDomain,
 						},
 					},
 				},
@@ -145,7 +145,7 @@ func createTraefikFile(rootDomain string, useCloudflare bool, cloudflareEmail st
 	}
 	certificatesResolvers := CertificatesResolversStruct{}
 
-	if useCloudflare == true {
+	if configUseCloudflare == true {
 		entryPointsHttpsCloudflare := EntryPointHttpsStruct{
 			Http: HttpsHttpStruct{
 				Tls: TlsStruct{
@@ -175,7 +175,7 @@ func createTraefikFile(rootDomain string, useCloudflare bool, cloudflareEmail st
 		certificatesResolversCloudflare := CertificatesResolversStruct{
 			DnsCloudflare: CertDnsCloudflareStruct{
 				Acme: CertAcmeStruct{
-					Email:   cloudflareEmail,
+					Email:   configCloudflareEmail,
 					Storage: "/etc/traefik/acme.json",
 					DnsChallenge: DnsChallengeStruct{
 						Provider:         "cloudflare",
@@ -205,7 +205,7 @@ func createTraefikFile(rootDomain string, useCloudflare bool, cloudflareEmail st
 			},
 		},
 		Experimental: ExperimentalStruct{
-			Hub: useTraefikHub,
+			Hub: configUseTraefikHub,
 		},
 		Hub: HubStruct{
 			Tls: HubTlsStruct{
@@ -252,14 +252,20 @@ func createTraefikFile(rootDomain string, useCloudflare bool, cloudflareEmail st
 
 	yamlData, err := yaml.Marshal(&traefikConfig)
 
-	//var b bytes.Buffer
-	//yamlEncoder := yaml.NewEncoder(&b)
-	//yamlEncoder.SetIndent(2)
-	//yamlEncoder.Encode(&yamlData)
-
 	if err != nil {
 		fmt.Printf("Error while Marshaling. %v", err)
 	}
 
-	return yamlData
+	writeFile("AppData/traefik-proxy", "acme.json", []byte(""), 0600)
+	writeFile("AppData/traefik-proxy", "traefik.yml", yamlData, 0644)
+
+	if configUseCloudflare == true {
+		writeFile("secrets", "cf_email", []byte(configCloudflareEmail), 0600)
+		writeFile("secrets", "cf_api_key", []byte(configCloudflareApiKey), 0600)
+	}
+	if configIsLocalEnvironment == true {
+		traefikTlsDynamicConfig := createTraefikTlsFile()
+
+		writeFile("AppData/traefik-proxy/rules", "local-tls.yml", traefikTlsDynamicConfig, 0644)
+	}
 }

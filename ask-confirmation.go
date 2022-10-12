@@ -2,15 +2,14 @@ package main
 
 import (
 	"fmt"
-	"log"
 )
 
-func askForConfirmation() bool {
+func askForConfirmation(withPrefix bool) bool {
 	var response string
-	_, err := fmt.Scan(&response)
-	if err != nil {
-		log.Fatal(err)
+	if withPrefix == true {
+		fmt.Printf("> " + colorGreen)
 	}
+	fmt.Scanln(&response)
 	okayResponses := []string{"y", "Y", "yes", "Yes", "YES"}
 	nokayResponses := []string{"n", "N", "no", "No", "NO"}
 	if containsString(okayResponses, response) {
@@ -18,8 +17,8 @@ func askForConfirmation() bool {
 	} else if containsString(nokayResponses, response) {
 		return false
 	} else {
-		fmt.Println("Please type yes or no and then press enter:")
-		return askForConfirmation()
+		fmt.Println(colorRed + "Please type yes or no and then press enter:" + colorReset)
+		return askForConfirmation(withPrefix)
 	}
 }
 

@@ -141,13 +141,13 @@ type AutheliaConfigStruct struct {
 	Notifier              AutheliaNotifierStruct              `yaml:"notifier"`
 }
 
-func createAutheliaConfig(rootDomain string, smtpUsername string, smtpHost string, smtpPort int, smptSender string, smtpStartupAddress string, policyForRootDomain string) []byte {
+func createAutheliaConfig() {
 	policyRootDomain := "one_factor"
 
-	if policyForRootDomain == "two_factor" {
+	if configPolicyForRootDomain == "two_factor" {
 		policyRootDomain = "two_factor"
 	}
-	if policyForRootDomain == "bypass" {
+	if configPolicyForRootDomain == "bypass" {
 		policyRootDomain = "bypass"
 	}
 	autheliaConfig := AutheliaConfigStruct{
@@ -160,7 +160,7 @@ func createAutheliaConfig(rootDomain string, smtpUsername string, smtpHost strin
 			FilePath:   "/config/authelia.log",
 			KeepStdout: true,
 		},
-		DefaultRedirectionUrl: "https://authelia." + rootDomain,
+		DefaultRedirectionUrl: "https://authelia." + configRootDomain,
 		Ntp: AutheliaNtpStruct{
 			Address:             "time.cloudflare.com:123",
 			Version:             3,
@@ -204,15 +204,15 @@ func createAutheliaConfig(rootDomain string, smtpUsername string, smtpHost strin
 			DefaultPolicy: "deny",
 			Rules: []AutheliaAccessControlRulesStruct{
 				{
-					Domain: []string{"authelia." + rootDomain},
+					Domain: []string{"authelia." + configRootDomain},
 					Policy: "bypass",
 				},
 				{
-					Domain: []string{rootDomain},
+					Domain: []string{configRootDomain},
 					Policy: policyRootDomain,
 				},
 				{
-					Domain:  []string{"traefik." + rootDomain},
+					Domain:  []string{"traefik." + configRootDomain},
 					Policy:  "two_factor",
 					Subject: []string{"group:admins", "group:traefik"},
 				},
@@ -229,7 +229,7 @@ func createAutheliaConfig(rootDomain string, smtpUsername string, smtpHost strin
 			Name:       "authelia_session",
 			Expiration: 3600,
 			Inactivity: 300,
-			Domain:     rootDomain,
+			Domain:     configRootDomain,
 		},
 		Regulation: AutheliaRegulationStruct{
 			MaxRetries: 3,
@@ -258,12 +258,12 @@ func createAutheliaConfig(rootDomain string, smtpUsername string, smtpHost strin
 		Notifier: AutheliaNotifierStruct{
 			DisableStartupCheck: false,
 			Smtp: AutheliaNotifierSmtpStruct{
-				Username:            smtpUsername,
-				Host:                smtpHost,
-				Port:                smtpPort,
-				Sender:              "Authelia <" + smptSender + ">",
+				Username:            configSmtpUsername,
+				Host:                configSmtpHost,
+				Port:                configSmtpPort,
+				Sender:              "Authelia <" + configSmtpSender + ">",
 				Subject:             "[Authelia] {title}",
-				StartupCheckAddress: smtpStartupAddress,
+				StartupCheckAddress: configSmtpStartupAddress,
 			},
 		},
 	}
@@ -274,5 +274,13 @@ func createAutheliaConfig(rootDomain string, smtpUsername string, smtpHost strin
 		fmt.Printf("Error while Marshaling. %v", err)
 	}
 
-	return yamlData
+	writeFile("AppData/authelia", "configuration.yml", yamlData, 0644)
+
+	// Secrets
+	writeFile("secrets", "authelia_notifier_smtp_password", []byte(configSmtpPassword), 0600)
+	writeFile("secrets", "authelia_jwt_secret", []byte(randomString(32)), 0600)
+	writeFile("secrets", "authelia_session_secret", []byte(randomString(32)), 0600)
+	writeFile("secrets", "authelia_storage_encryption_key", []byte(randomString(32)), 0600)
+	writeFile("secrets", "mysql_password", []byte(randomString(16)), 0600)
+	writeFile("secrets", "mysql_root_password", []byte(randomString(16)), 0600)
 }

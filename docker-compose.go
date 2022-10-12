@@ -6,7 +6,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func createDockerComposeFile(useTraefikHub bool, useCloudflare bool, isLocalEnvironment bool, secureRootDomain bool) []byte {
+func createDockerComposeFile() {
 
 	type IpamConfigSubnetStruct struct {
 		Subnet string `yaml:"subnet"`
@@ -152,7 +152,7 @@ func createDockerComposeFile(useTraefikHub bool, useCloudflare bool, isLocalEnvi
 		},
 	}
 
-	if useTraefikHub == true {
+	if configUseTraefikHub == true {
 		traefikHubServiceDef := ServiceStruct{
 			ContainerName: "traefik-hub-agent",
 			Image:         "ghcr.io/traefik/hub-agent-traefik:v0.7.2",
@@ -182,7 +182,7 @@ func createDockerComposeFile(useTraefikHub bool, useCloudflare bool, isLocalEnvi
 		traefikProxyPorts = append(traefikProxyPorts, "0.0.0.0:9900:9900", "0.0.0.0:9901:9901")
 	}
 
-	if useCloudflare == true {
+	if configUseCloudflare == true {
 		cloudflareSecrets := SecretsStruct{
 			CfEmail: SecretStruct{
 				File: "./secrets/cf_email",
@@ -198,11 +198,11 @@ func createDockerComposeFile(useTraefikHub bool, useCloudflare bool, isLocalEnvi
 		mergo.Merge(&secrets, cloudflareSecrets)
 	}
 
-	if isLocalEnvironment == true {
+	if configIsLocalEnvironment == true {
 		traefikProxyVolumes = append(traefikProxyVolumes, "./certs:/certs:ro")
 	}
 
-	if secureRootDomain == true {
+	if configSecureRootDomain == true {
 		traefikProxyLabels = append(traefikProxyLabels, "traefik.http.routers.traefik-rtr.middlewares=chain-authelia@file")
 	}
 
@@ -438,5 +438,6 @@ func createDockerComposeFile(useTraefikHub bool, useCloudflare bool, isLocalEnvi
 	if err != nil {
 		fmt.Printf("Error while Marshaling. %v", err)
 	}
-	return yamlData
+
+	writeFile(".", "docker-compose.yml", yamlData, 0644)
 }
