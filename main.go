@@ -78,8 +78,8 @@ func main() {
 	configSmtpPort = getNumberInput(colorYellow+"SMTP-Port"+colorReset+":", true)
 	configSmtpUsername = getTextInput(colorYellow+"SMTP-Username"+colorReset+":", true)
 	configSmtpPassword = getTextInput(colorYellow+"SMTP-Password"+colorReset+":", true)
-	configSmtpSender = getTextInput(colorYellow+"SMTP-Sender Address"+colorReset+":", true)
-	configSmtpStartupAddress = getTextInput(colorYellow+"SMTP-Startup Check Address"+colorReset+":", true)
+	configSmtpSender = getEmailAddressInput(colorYellow+"SMTP-Sender Address"+colorReset+":", true)
+	configSmtpStartupAddress = getEmailAddressInput(colorYellow+"SMTP-Startup Check Address"+colorReset+":", true)
 
 	createTraefikFile()
 	createAutheliaConfig()

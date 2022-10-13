@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/mail"
 	"strconv"
 )
 
@@ -23,10 +24,11 @@ func getTextInput(question string, required bool) string {
 
 func getNumberInput(question string, required bool) int {
 	var output int
-	var configSmtpPortError error
+	var err error
 
-	output, configSmtpPortError = strconv.Atoi(getTextInput(question, required))
-	if configSmtpPortError != nil {
+	text := getTextInput(question, required)
+	output, err = strconv.Atoi(text)
+	if err != nil {
 		fmt.Println(colorRed + "Please enter a valid port" + colorReset)
 		output = getNumberInput(question, required)
 	}
@@ -38,6 +40,29 @@ func getConfirmInput(question string) bool {
 	fmt.Println(question)
 	output := askForConfirmation(true)
 	fmt.Println(colorReset)
+
+	return output
+}
+
+func getEmailAddressInput(question string, required bool) string {
+	var output string
+
+	fmt.Println(question)
+	fmt.Printf("> " + colorGreen)
+	fmt.Scanln(&output)
+	fmt.Println(colorReset)
+
+	if required == true && output == "" {
+		fmt.Println(colorRed + "An empty value is not allowed here" + colorReset)
+		output = getEmailAddressInput(question, required)
+	}
+
+	_, err := mail.ParseAddress(output)
+
+	if err != nil {
+		fmt.Println(colorRed + "The email address is not valid. Please try again." + colorReset)
+		output = getEmailAddressInput(question, required)
+	}
 
 	return output
 }
