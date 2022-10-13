@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"golang.org/x/crypto/ssh/terminal"
 	"net/mail"
 	"strconv"
+	"syscall"
 )
 
 func getTextInput(question string, required bool) string {
@@ -62,6 +64,29 @@ func getEmailAddressInput(question string, required bool) string {
 	if err != nil {
 		fmt.Println(colorRed + "The email address is not valid. Please try again." + colorReset)
 		output = getEmailAddressInput(question, required)
+	}
+
+	return output
+}
+
+func getPasswordInput(question string, required bool) string {
+	var output string
+
+	fmt.Println(question)
+	fmt.Printf("> " + colorGreen)
+	passwd, err := terminal.ReadPassword(int(syscall.Stdin))
+	fmt.Println(colorReset)
+
+	if err != nil {
+		fmt.Println(colorRed + "An error occurred. Please try again." + colorReset)
+		output = getPasswordInput(question, required)
+	} else {
+		output = string(passwd)
+	}
+
+	if required == true && output == "" {
+		fmt.Println(colorRed + "An empty value is not allowed here" + colorReset)
+		output = getPasswordInput(question, required)
 	}
 
 	return output
