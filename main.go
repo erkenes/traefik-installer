@@ -81,6 +81,8 @@ func main() {
 	configSmtpSender = getEmailAddressInput(colorYellow+"SMTP-Sender Address"+colorReset+":", true)
 	configSmtpStartupAddress = getEmailAddressInput(colorYellow+"SMTP-Startup Check Address"+colorReset+":", true)
 
+	//testSmtpConnection(configSmtpUsername, configSmtpPassword, configSmtpHost, configSmtpPort)
+	//
 	createTraefikFile()
 	createAutheliaConfig()
 	createDockerComposeFile()

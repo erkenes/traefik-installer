@@ -40,3 +40,18 @@ func randomString(n int) string {
 	_, _ = Rando.Read(b)
 	return hex.EncodeToString(b)
 }
+
+//func testSmtpConnection(username string, password string, host string, port int) {
+//
+//	auth := LoginAuth(username, password)
+//	err := smtp.SendMail(
+//		host+":"+strconv.Itoa(port),
+//		auth,
+//		username,
+//		[]string{"eneserk70@gmail.com"},
+//		[]byte("authentication successful"),
+//	)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//}
