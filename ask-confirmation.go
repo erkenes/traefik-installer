@@ -4,6 +4,9 @@ import (
 	"fmt"
 )
 
+/*
+Ask for confirmation
+*/
 func askForConfirmation(withPrefix bool) bool {
 	var response string
 	if withPrefix == true {

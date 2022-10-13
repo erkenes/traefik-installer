@@ -6,6 +6,9 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+/*
+Create the docker compose file
+*/
 func createDockerComposeFile() {
 
 	type IpamConfigSubnetStruct struct {

@@ -141,6 +141,9 @@ type AutheliaConfigStruct struct {
 	Notifier              AutheliaNotifierStruct              `yaml:"notifier"`
 }
 
+/*
+Create an authelia configuration
+*/
 func createAutheliaConfig() {
 	policyRootDomain := "one_factor"
 

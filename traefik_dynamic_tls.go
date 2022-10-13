@@ -5,6 +5,9 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+/*
+Create dynamic traefik tls config
+*/
 func createTraefikTlsFile() []byte {
 	type CertsStruct struct {
 		CertFile string `yaml:"certFile,omitempty"`

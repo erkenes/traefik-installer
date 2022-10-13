@@ -17,6 +17,9 @@ const colorPurple = "\033[35m"
 const colorCyan = "\033[36m"
 const colorWhite = "\033[37m"
 
+/*
+Write to file
+*/
 func writeFile(filepath string, filename string, content []byte, filePerm os.FileMode) {
 	fullFilepath := filename
 
@@ -34,6 +37,32 @@ func writeFile(filepath string, filename string, content []byte, filePerm os.Fil
 	}
 }
 
+/*
+Read from file
+*/
+func readFile(filepath string, filename string) []byte {
+	fullFilepath := filename
+
+	if filepath != "." && filepath != "" {
+		fullFilepath = filepath + "/" + filename
+
+		if _, err := os.Stat(fullFilepath); os.IsNotExist(err) {
+			return []byte{}
+		}
+	}
+
+	content, err := os.ReadFile(fullFilepath)
+
+	if err != nil {
+		return []byte{}
+	}
+
+	return content
+}
+
+/*
+Create a random string
+*/
 func randomString(n int) string {
 	var Rando = rand.Reader
 	b := make([]byte, n)

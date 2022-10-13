@@ -127,6 +127,9 @@ type TraefikConfig struct {
 	CertificatesResolvers CertificatesResolversStruct `yaml:"certificatesResolvers,omitempty"`
 }
 
+/*
+Create traefik config file
+*/
 func createTraefikFile() {
 	entryPointsHttps := EntryPointHttpsStruct{
 		Address: ":443",
